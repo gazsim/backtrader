@@ -934,6 +934,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     broker = property(getbroker, setbroker)
 
     def plot(self, plotter=None, numfigs=1, iplot=True, start=None, end=None,
+             savefig=False, figfilename='backtrader-plot-{j}-{i}.png',
              width=16, height=9, dpi=300, tight=True, use=None,
              **kwargs):
         '''
@@ -958,6 +959,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ``end``: An index to the datetime line array of the strategy or a
         ``datetime.date``, ``datetime.datetime`` instance indicating the end
         of the plot
+
+        ``savefig``: set to ``True`` to save to a file rather than plot
+
+        ``figfilename``: name of the file. Use ``{j}`` in the name for the
+        strategy index to which the figure corresponds and use ``{i}`` to
+        insert figure number if multiple figures are being used per strategy
+        plot
 
         ``width``: in inches of the saved figure
 
@@ -993,8 +1001,15 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
                 figs.append(rfig)
 
-            plotter.show()
-
+            if savefig:
+                for j, stratfigs in enumerate(figs):
+                    for i, fig in enumerate(stratfigs):
+                        plotter.savefig(fig,
+                                        filename=figfilename.format(j=j, i=i),
+                                        width=width, height=height, dpi=dpi,
+                                        tight=tight)
+            else:
+                plotter.show()
         return figs
 
     def __call__(self, iterstrat):
